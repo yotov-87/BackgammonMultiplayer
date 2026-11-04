@@ -1,0 +1,18 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ] # Сменете 'main' с 'master', ако ви е такава главната бранча
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages
+        uses: sunpeak/gh-pages-automatic-deploy@v1 # Или стандартен action за качване на статични файлове
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          folder: src  # <--- ТУК указвате, че сайтът се чете от папка src!
