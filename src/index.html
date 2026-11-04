@@ -48,6 +48,9 @@
             background: #2b2b2b;
             color: #fff;
             border: 1px solid #555;
+            letter-spacing: 2px;
+            text-align: center;
+            font-weight: bold;
         }
         button {
             background: #27ae60;
@@ -87,20 +90,20 @@
         <!-- Connection Status -->
         <div class="section">
             <h3>Connection Status: <span id="status-text" class="status">Disconnected</span></h3>
-            <p>Your Peer ID: <strong id="my-peer-id">Generating...</strong></p>
+            <p>Your Room Code: <strong id="my-peer-id" style="color: #3498db; font-size: 18px;">Generating...</strong></p>
         </div>
 
         <!-- Host Section -->
         <div class="section" id="host-section">
             <h3>Host Game (Player 1)</h3>
-            <p>Share your Room ID with the second player:</p>
-            <h2 id="room-id-display" style="color: #3498db; letter-spacing: 2px;">---</h2>
+            <p>Share this 4-digit code with the second player:</p>
+            <h2 id="room-id-display" style="color: #3498db; letter-spacing: 4px;">----</h2>
         </div>
 
         <!-- Join Section -->
         <div class="section" id="join-section">
             <h3>Join Game (Player 2)</h3>
-            <input type="text" id="peer-id-input" placeholder="Enter Host Peer ID / Room ID">
+            <input type="text" id="peer-id-input" placeholder="Enter 4-digit Room Code" maxlength="4">
             <button id="connect-btn">Connect to Room</button>
         </div>
 
@@ -130,19 +133,35 @@
         const sendBtn = document.getElementById('send-btn');
         const rollTestBtn = document.getElementById('roll-test-btn');
 
-        // Initialize PeerJS (auto-generates id or uses peerjs public cloud server)
+        // Initialize PeerJS with a custom 4-digit code
         function initPeer() {
-          peer = new Peer({
-              host: '0.peerjs.com',
-              port: 443,
-              secure: true
-          });
+            // Генерираме случаен 4-цифрен код между 1000 и 9999
+            const shortCode = Math.floor(1000 + Math.random() * 9000).toString();
+
+            peer = new Peer(shortCode, {
+                host: '0.peerjs.com',
+                port: 443,
+                secure: true
+            });
 
             peer.on('open', (id) => {
                 myId = id;
                 myPeerIdEl.textContent = id;
                 roomIdDisplay.textContent = id;
                 statusText.textContent = 'Waiting for connection...';
+                appendLog(`System: Room created with code ${id}`);
+            });
+
+            // Ако случайно кодът е зает в момента, опитваме се пак с нов
+            peer.on('error', (err) => {
+                console.error(err);
+                if (err.type === 'unavailable-id') {
+                    appendLog('System: Code already in use, generating new one...');
+                    peer.destroy();
+                    setTimeout(initPeer, 1000); // Опит пак след секунда
+                } else {
+                    appendLog('System Error: ' + err.type);
+                }
             });
 
             // When someone connects to us (Host mode)
@@ -154,11 +173,6 @@
                 conn = connection;
                 setupConnection();
                 appendLog('System: Peer connected to you!');
-            });
-
-            peer.on('error', (err) => {
-                console.error(err);
-                appendLog('System Error: ' + err.type);
             });
         }
 
@@ -187,12 +201,12 @@
         // Connect to a peer (Join mode)
         connectBtn.addEventListener('click', () => {
             const remoteId = peerIdInput.value.trim();
-            if (!remoteId) {
-                alert('Please enter a valid Peer ID');
+            if (!remoteId || remoteId.length !== 4) {
+                alert('Please enter a valid 4-digit Room Code');
                 return;
             }
 
-            appendLog(`System: Connecting to ${remoteId}...`);
+            appendLog(`System: Connecting to room ${remoteId}...`);
             conn = peer.connect(remoteId);
 
             conn.on('open', () => {
