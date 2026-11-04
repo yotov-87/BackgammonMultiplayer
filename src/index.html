@@ -132,7 +132,11 @@
 
         // Initialize PeerJS (auto-generates id or uses peerjs public cloud server)
         function initPeer() {
-            peer = new Peer();
+          peer = new Peer({
+              host: '0.peerjs.com',
+              port: 443,
+              secure: true
+          });
 
             peer.on('open', (id) => {
                 myId = id;
