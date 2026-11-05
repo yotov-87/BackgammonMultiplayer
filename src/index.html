@@ -17,6 +17,7 @@
         <!-- Connection Status -->
         <div class="section">
             <h3>Connection Status: <span id="status-text" class="status">Disconnected</span></h3>
+            <p>Connection type: <strong id="conn-type">-</strong></p>
             <p>Your Room Code: <strong id="my-peer-id" style="color: #3498db; font-size: 18px;">Generating...</strong></p>
         </div>
 
@@ -30,7 +31,7 @@
         <!-- Join Section -->
         <div class="section" id="join-section">
             <h3>Join Game (Player 2)</h3>
-            <input type="text" id="peer-id-input" placeholder="Enter 4-digit Room Code" maxlength="4">
+            <input type="text" id="peer-id-input" placeholder="Enter 4-digit Room Code" maxlength="4" inputmode="numeric" pattern="[0-9]*">
             <button id="connect-btn">Connect to Room</button>
         </div>
 
